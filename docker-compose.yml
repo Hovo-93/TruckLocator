@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_DB: truck_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 4GKpEUDzedq7WBI
+    ports:
+      - '5432:5432'
+    volumes:
+      - db:/var/lib/postgresql/data
+
+  web:
+    restart: always
+    build: .
+    command: bash -c "python manage.py collectstatic --noinput 
+                  && python manage.py makemigrations 
+                  && python manage.py migrate 
+                  && python manage.py truck_createdata
+                  && gunicorn trucktrekker.wsgi -b 0.0.0.0:8000"
+
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+
+
+volumes:
+  db:
+
